@@ -1,0 +1,58 @@
+body {
+    font-family: sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    padding: 1em;
+    overflow-y: scroll;
+}
+.site-header { background: #4a4a4a; color: #fff; padding: 16px; border-radius: 8px; margin-bottom: 1em; text-align: center; }
+.site-header h1 { margin: 0; }
+.header-meta { margin-top: 6px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.card { background: #fff; padding: 1em; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1em; }
+
+.form fieldset { border: 1px solid #ccc; border-radius: 6px; padding: 1em; margin-bottom: 1em; }
+.form legend { font-weight: bold; color: #555; padding: 0 0.5em; }
+.form .form-group { margin-bottom: 0.75em; }
+
+.options-row { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.opt { display: inline-flex; align-items: center; gap: 6px; background: #f7f7fb; border: 1px solid #ddd; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+.opt input[type="checkbox"] { width: 16px; height: 16px; }
+
+.form input[type="text"] {
+    width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px;
+}
+
+.hint { color: #777; font-size: 0.9em; }
+.field-error { color: #d9534f; min-height: 1.2em; margin-top: 6px; font-weight: 600; }
+
+.form-actions { display: flex; gap: 10px; justify-content: center; margin-top: 1em; }
+.btn {
+    display: inline-block; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none;
+    background: #6c757d; color: #fff; font-size: 16px;
+}
+.btn:hover { filter: brightness(1.05); }
+.btn-primary { background: #5cb85c; }
+.btn-primary:hover { background: #4cae4c; }
+.btn-danger { background: #d9534f; }
+.btn-danger:hover { background: #c64541; }
+
+.error-message, .flash, .placeholder { text-align: center; font-weight: 600; margin: 10px 0; }
+.error-message { color: #d9534f; }
+.flash { color: #31708f; }
+.placeholder { color: #777; }
+
+.graph-container { max-width: 400px; margin: 0 auto; }
+.graph-container canvas {
+    width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: #fff;
+}
+
+.table-container { max-height: 500px; overflow-y: auto; }
+.table { width: 100%; border-collapse: collapse; margin-top: 0.5em; }
+.table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+.table thead { background: #f2f2f2; position: sticky; top: 0; }
+
+.hit-row { background: #dff0d8; }
+.miss-row { background: #f2dede; }
+
+.site-footer { text-align: center; color: #777; margin-top: 1em; }

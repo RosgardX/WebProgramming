@@ -1,0 +1,52 @@
+<div class="page">
+  <p-toast></p-toast>
+
+  <div class="card">
+    <div class="title">Гришин Артем Евгеньевич</div>
+    <div class="subtitle primary">Группа P3211 · Вариант 882</div>
+    <div class="subtitle">Лабораторная работа: проверка точки</div>
+
+    <div class="tabs">
+      <button
+        type="button"
+        class="tab"
+        [class.active]="!isRegister"
+        (click)="toggle('login')"
+      >
+        Вход
+      </button>
+      <button
+        type="button"
+        class="tab"
+        [class.active]="isRegister"
+        (click)="toggle('register')"
+      >
+        Регистрация
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+      <label>Логин</label>
+      <input pInputText type="text" formControlName="username" placeholder="Введите логин" />
+
+      <label>Пароль</label>
+      <div class="password-row">
+        <input
+          pInputText
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Введите пароль"
+        />
+        <button
+          pButton
+          type="button"
+          class="eye-btn"
+          [icon]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"
+          (click)="toggleShowPassword()"
+        ></button>
+      </div>
+
+      <button pButton type="submit" class="submit" [label]="isRegister ? 'Зарегистрироваться' : 'Войти'"></button>
+    </form>
+  </div>
+</div>

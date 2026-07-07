@@ -1,0 +1,109 @@
+.page {
+  padding: 1.5rem;
+  background: #eef2ff;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1rem;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+/* === СЛАЙДЕР FIX === */
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  padding: 10px 0; /* Даем место сверху и снизу */
+}
+
+/*
+   Принудительно растягиваем сам компонент p-slider.
+   display: block важен, иначе он может схлопнуться.
+*/
+p-slider {
+  display: block;
+  flex-grow: 1;
+  width: 100%;
+}
+
+/* Стилизация внутренней части (трека) */
+::ng-deep .p-slider.p-slider-horizontal {
+  height: 8px !important; /* !important чтобы перебить PrimeNG стили */
+  background: #e5e7eb !important;
+  border-radius: 4px;
+  border: none !important;
+}
+
+/* Заполненная часть */
+::ng-deep .p-slider .p-slider-range {
+  background: #3b82f6 !important;
+  border-radius: 4px;
+}
+
+/* Ручка */
+::ng-deep .p-slider .p-slider-handle {
+  width: 20px !important;
+  height: 20px !important;
+  background: #ffffff !important;
+  border: 4px solid #3b82f6 !important;
+  border-radius: 50%;
+  margin-top: -8px !important; /* (20px ручка - 8px трек) / 2 = 6px сдвиг, но PrimeNG считает от верха, ставим с запасом */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+  cursor: grab;
+  transition: transform 0.1s;
+
+  &:hover {
+    transform: scale(1.1);
+    background: #3b82f6 !important;
+    border-color: white !important;
+  }
+}
+
+.slider-value {
+  font-weight: 700;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ===== Цвета и адаптив ===== */
+.text-success { color: #22c55e; }
+.text-danger  { color: #ef4444; }
+
+@media (max-width: 1202px) {
+  .page { padding: 1.25rem; }
+  .layout { grid-template-columns: 1fr; gap: 0.75rem; }
+}
+
+@media (max-width: 815px) {
+  .page { padding: 1rem; }
+  .topbar { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .layout { display: flex; flex-direction: column; }
+  :host ::ng-deep .p-table-wrapper { overflow-x: auto; }
+}

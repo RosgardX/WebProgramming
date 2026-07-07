@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="opi3" default="build" basedir=".">
+
+    <property file="build.properties"/>
+
+    <condition property="plugin.jar.exists">
+        <available file="${lib.dir}/timed-task.jar"/>
+    </condition>
+
+    <target name="register-plugin" if="plugin.jar.exists">
+        <taskdef name="timed"
+                 classname="TimedTask"
+                 classpath="${lib.dir}/timed-task.jar"/>
+        <echo message="TimedTask загружен."/>
+    </target>
+
+    <path id="compile.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="test.classpath">
+        <path refid="compile.classpath"/>
+        <pathelement path="${classes.dir}"/>
+        <pathelement path="${test.classes.dir}"/>
+    </path>
+
+    <target name="clean" description="Удаление скомпилированных классов и временных файлов">
+        <delete dir="${build.dir}" quiet="true"/>
+        <delete file="${jar.name}" quiet="true"/>
+        <delete file="${war.name}" quiet="true"/>
+        <delete dir="${native2ascii.dest}" quiet="true"/>
+        <echo message="Очищено."/>
+    </target>
+
+
+    <target name="compile" description="Компиляция исходных кодов проекта">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               includeantruntime="false"
+               encoding="UTF-8"
+               source="${java.source}"
+               target="${java.target}">
+            <classpath refid="compile.classpath"/>
+        </javac>
+        <copy todir="${classes.dir}" failonerror="false">
+            <fileset dir="${res.dir}" erroronmissingdir="false"/>
+        </copy>
+        <echo message="Исходники скомпилированы → ${classes.dir}"/>
+    </target>
+
+    <target name="build" depends="compile" description="Сборка WAR и исполняемого JAR">
+        <war destfile="${war.name}"
+             webxml="${web.dir}/WEB-INF/web.xml"
+             basedir="${web.dir}"
+             excludes="WEB-INF/web.xml">
+            <classes dir="${classes.dir}">
+                <exclude name="Main.class"/>
+            </classes>
+            <lib dir="${lib.dir}">
+                <include name="*.jar"/>
+                <exclude name="jakarta.jakartaee-api*.jar"/>
+                <exclude name="junit*.jar"/>
+                <exclude name="junit-platform*.jar"/>
+                <exclude name="timed-task.jar"/>
+            </lib>
+            <manifest>
+                <attribute name="Implementation-Title" value="${ant.project.name}"/>
+                <attribute name="Implementation-Version" value="${version}"/>
+                <attribute name="Built-By" value="${user.name}"/>
+            </manifest>
+        </war>
+        <jar destfile="${jar.name}">
+            <fileset dir="${classes.dir}" includes="Main.class"/>
+            <zipfileset file="${war.name}" prefix="resources"/>
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Implementation-Title" value="${ant.project.name}"/>
+                <attribute name="Implementation-Version" value="${version}"/>
+                <attribute name="Built-By" value="${user.name}"/>
+            </manifest>
+        </jar>
+        <echo message="JAR собран → ${jar.name}"/>
+    </target>
+
+    <target name="test" depends="build" description="Запуск JUnit-тестов после сборки">
+        <mkdir dir="${test.classes.dir}"/>
+        <javac srcdir="${test.src.dir}"
+               destdir="${test.classes.dir}"
+               includeantruntime="false"
+               encoding="UTF-8"
+               source="${java.source}"
+               target="${java.target}">
+            <classpath refid="test.classpath"/>
+        </javac>
+        <copy todir="${test.classes.dir}" failonerror="false">
+            <fileset dir="${test.res.dir}" erroronmissingdir="false"/>
+        </copy>
+        <java classname="org.junit.platform.console.ConsoleLauncher"
+              fork="true"
+              failonerror="true"
+              maxmemory="${test.maxmemory}">
+            <classpath refid="test.classpath"/>
+            <arg value="--scan-class-path"/>
+            <arg value="${test.classes.dir}"/>
+            <arg value="--fail-if-no-tests"/>
+        </java>
+        <echo message="Тесты завершены."/>
+    </target>
+
+    <target name="native2ascii" description="Перекодировка файлов локализации в ASCII">
+        <mkdir dir="${native2ascii.dest}"/>
+        <native2ascii encoding="UTF-8"
+                      src="${native2ascii.src}"
+                      dest="${native2ascii.dest}"
+                      includes="**/*.properties"/>
+        <echo message="Готово: ${native2ascii.src} → ${native2ascii.dest}"/>
+    </target>
+
+    <target name="env" description="Сборка и запуск JAR в альтернативном окружении">
+        <property file="${env.properties.file}"/>
+        <antcall target="build">
+            <param name="java.source" value="${env.java.version}"/>
+            <param name="java.target" value="${env.java.version}"/>
+        </antcall>
+        <java jar="${jar.name}" fork="true" jvm="${env.java.bin}">
+            <jvmarg line="${env.jvm.args}"/>
+            <arg    line="${env.app.args}"/>
+        </java>
+        <echo message="Запуск в окружении Java ${env.java.version} завершён."/>
+    </target>
+
+
+    <target name="timed-build" description="Сборка проекта с замером времени (плагин TimedTask)">
+        <taskdef name="timed"
+                 classname="TimedTask"
+                 classpath="${lib.dir}/timed-task.jar"/>
+        <timed target="build" label="Полная сборка проекта"/>
+    </target>
+
+    <target name="timed-test" description="Запуск тестов с замером времени (плагин TimedTask)">
+        <taskdef name="timed"
+                 classname="TimedTask"
+                 classpath="${lib.dir}/timed-task.jar"/>
+        <timed target="test" label="Запуск JUnit-тестов"/>
+    </target>
+
+    <target name="timed-compile" description="Компиляция с замером времени (плагин TimedTask)">
+        <taskdef name="timed"
+                 classname="TimedTask"
+                 classpath="${lib.dir}/timed-task.jar"/>
+        <timed target="compile" label="Компиляция исходников"/>
+    </target>
+
+
+    <target name="build-plugin" description="Сборка плагина TimedTask в JAR">
+        <mkdir dir="${build.dir}/plugin-classes"/>
+
+        <javac srcdir="${plugin.src.dir}"
+               destdir="${build.dir}/plugin-classes"
+               includeantruntime="true"
+               encoding="UTF-8"
+               source="${java.source}"
+               target="${java.target}"/>
+
+        <jar destfile="${lib.dir}/timed-task.jar"
+             basedir="${build.dir}/plugin-classes">
+            <manifest>
+                <attribute name="Implementation-Title" value="TimedTask Ant Plugin"/>
+                <attribute name="Implementation-Version" value="${version}"/>
+            </manifest>
+        </jar>
+
+        <echo message="Плагин собран - ${lib.dir}/timed-task.jar"/>
+    </target>
+
+</project>

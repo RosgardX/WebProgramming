@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <meta charset="UTF-8"/>
+    <title>Points Lab — стартовая</title>
+
+    <h:outputStylesheet library="css" name="styles.css" />
+    <h:outputScript library="js" name="clock.js" />
+</h:head>
+<h:body styleClass="pl-body">
+    <div class="pl-background-overlay"></div>
+
+    <h:form id="indexForm">
+        <p:panel header="Информация" styleClass="pl-panel">
+            <h:panelGrid columns="2" styleClass="pl-info-grid">
+                <h:outputText value="ФИО:" />
+                <h:outputText value="Гришин Артем Евгеньевич" />
+
+                <h:outputText value="Группа:" />
+                <h:outputText value="P3211" />
+
+                <h:outputText value="Вариант:" />
+                <h:outputText value="18212" />
+            </h:panelGrid>
+        </p:panel>
+
+        <p:panel header="Часы" style="margin-top:16px;" styleClass="pl-panel">
+            <div class="pl-clock-container">
+                <canvas id="analogClock" width="260" height="260"></canvas>
+            </div>
+        </p:panel>
+
+        <p:panel style="margin-top:16px;" styleClass="pl-panel pl-center">
+            <p:commandButton value="Перейти к приложению"
+                             styleClass="pl-main-button"
+                             ajax="false"
+                             action="go-main" />
+        </p:panel>
+    </h:form>
+</h:body>
+</html>

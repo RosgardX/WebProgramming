@@ -1,0 +1,93 @@
+<div class="page">
+  <div class="topbar">
+    <div class="title">График</div>
+    <button pButton label="Выйти" icon="pi pi-sign-out" class="p-button-danger" (click)="logout()"></button>
+  </div>
+
+  <div class="layout">
+    <div class="left">
+      <p-card header="Ввод данных">
+        <form [formGroup]="form" class="form-grid">
+
+          <div class="field">
+            <label for="x">X</label>
+            <p-dropdown
+              id="x"
+              formControlName="x"
+              [options]="xOptions"
+              placeholder="Выберите X"
+              [style]="{'width':'100%'}">
+            </p-dropdown>
+          </div>
+
+          <!-- Исправленный Y слайдер -->
+          <div class="field">
+            <label>Y (−3 ... 5)</label>
+            <div class="slider-wrapper">
+              <!-- w-full и style width 100% критически важны для PrimeNG -->
+              <p-slider
+                formControlName="y"
+                [min]="-3"
+                [max]="5"
+                [step]="0.1"
+                [animate]="true"
+                styleClass="w-full"
+                [style]="{'width': '100%'}">
+              </p-slider>
+              <div class="slider-value">
+                {{ form.get('y')?.value | number:'1.1-2' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="r">R (1 … 4)</label>
+            <p-dropdown
+              id="r"
+              formControlName="r"
+              [options]="rOptions"
+              placeholder="Выберите R"
+              (onChange)="updateChart()"
+              [style]="{'width':'100%'}">
+            </p-dropdown>
+          </div>
+
+          <div class="field">
+            <button pButton type="button" label="Проверить" icon="pi pi-check" (click)="submit()"></button>
+          </div>
+        </form>
+      </p-card>
+
+      <p-card header="График" class="p-mt-3">
+        <p-chart #chartRef
+                 type="scatter"
+                 [data]="chartData"
+                 [options]="chartOptions"
+                 (click)="onCanvasClick($event, chartRef)"></p-chart>
+      </p-card>
+    </div>
+
+    <div class="right">
+      <p-card header="Результаты">
+        <p-table [value]="hits" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>X</th><th>Y</th><th>R</th><th>Hit</th><th>Time</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-h>
+            <tr>
+              <td>{{ h.x }}</td>
+              <td>{{ h.y }}</td>
+              <td>{{ h.r }}</td>
+              <td><i class="pi" [ngClass]="h.hit ? 'pi-check text-success' : 'pi-times text-danger'"></i></td>
+              <td>{{ h.createdAt | date:'dd.MM.yyyy HH:mm:ss' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+  </div>
+
+  <p-toast></p-toast>
+</div>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Основная — Points Lab</title>
+
+    <h:outputStylesheet library="css" name="styles.css" />
+    <h:outputScript library="js" name="plot.js" />
+</h:head>
+<h:body styleClass="pl-body">
+    <div class="pl-background-overlay"></div>
+
+    <h:form id="form">
+
+        <p:toolbar styleClass="pl-toolbar">
+            <f:facet name="left">
+                <p:commandButton value="На стартовую"
+                                 ajax="false"
+                                 action="go-index"
+                                 styleClass="pl-main-button" />
+            </f:facet>
+            <f:facet name="right">
+                <h:outputText id="clockLabelTop"
+                              value="#{clockBean.currentTime}"
+                              styleClass="pl-clock-text" />
+                <p:poll interval="9" update="clockLabelTop" />
+            </f:facet>
+        </p:toolbar>
+
+        <p:panel header="Контролы" style="margin-top:12px;" styleClass="pl-panel">
+
+            <p:messages id="messages" autoUpdate="true" closable="true" />
+
+            <h:panelGrid columns="1" styleClass="pl-input-grid" columnClasses="pl-col-field">
+
+                <!-- X -->
+                <h:panelGroup layout="block" style="width:100%;">
+                    <p:inputText id="xInput"
+                                 value="#{pointController.x}"
+                                 style="display:none;"
+                                 required="true"
+                                 label="X"
+                                 title="X"
+                                 placeholder="X">
+                        <f:validator validatorId="xRangeValidator" />
+                    </p:inputText>
+                    <p:slider id="xSlider"
+                              for="xInput"
+                              minValue="-3"
+                              maxValue="3"
+                              step="0.5"
+                              style="width:100%;"
+                              display="xDisplay">
+                        <p:ajax event="slideEnd"
+                                process="@this xInput"
+                                update="xDisplay coords" />
+                    </p:slider>
+                    <h:outputText id="xDisplay"
+                                  value="X = #{pointController.x}"
+                                  style="display:block;margin-top:6px;color:#555;" />
+                    <h:outputText value="ОДЗ: -3 ≤ X ≤ 3, шаг 0.5"
+                                  style="display:block;font-size:12px;color:#777;margin-top:4px;" />
+                </h:panelGroup>
+
+                <!-- Y -->
+                <h:panelGroup layout="block" style="margin-top:8px;">
+                    <h:outputLabel for="yInput" value="Y:" />
+                    <p:inputText id="yInput"
+                                 value="#{pointController.y}"
+                                 maxlength="8"
+                                 style="width: 90px; margin-left:6px;"
+                                 label="Y"
+                                 title="Y"
+                                 placeholder="Y"
+                                 converterMessage="Y должно быть числом (пример: 1.23)">
+                        <f:validator validatorId="yRangeValidator" />
+                        <p:ajax event="blur" update="coords" />
+                    </p:inputText>
+                    <br/>
+                    <h:outputText value="ОДЗ: -5 &lt; Y &lt; 5"
+                                  style="font-size: 11px; color: #777;" />
+                </h:panelGroup>
+
+                <!-- R -->
+                <h:panelGrid columns="6" style="margin-top:12px;" styleClass="pl-r-grid">
+                    <h:outputLabel value="R:"/>
+
+                    <p:commandButton value="1" styleClass="pl-r-button"
+                                     process="@this"
+                                     action="#{pointController.changeRadius(1.0)}"
+                                     update=":form:rValue :form:coords"
+                                     oncomplete="clearPoints(); redrawPlot();" />
+                    <p:commandButton value="2" styleClass="pl-r-button"
+                                     process="@this"
+                                     action="#{pointController.changeRadius(2.0)}"
+                                     update=":form:rValue :form:coords"
+                                     oncomplete="clearPoints(); redrawPlot();" />
+                    <p:commandButton value="3" styleClass="pl-r-button"
+                                     process="@this"
+                                     action="#{pointController.changeRadius(3.0)}"
+                                     update=":form:rValue :form:coords"
+                                     oncomplete="clearPoints(); redrawPlot();" />
+                    <p:commandButton value="4" styleClass="pl-r-button"
+                                     process="@this"
+                                     action="#{pointController.changeRadius(4.0)}"
+                                     update=":form:rValue :form:coords"
+                                     oncomplete="clearPoints(); redrawPlot();" />
+                    <p:commandButton value="5" styleClass="pl-r-button"
+                                     process="@this"
+                                     action="#{pointController.changeRadius(5.0)}"
+                                     update=":form:rValue :form:coords"
+                                     oncomplete="clearPoints(); redrawPlot();" />
+                </h:panelGrid>
+
+                <!-- Проверка + координаты -->
+                <h:panelGrid columns="2" style="margin-top:12px; column-gap:12px; align-items:center;">
+                    <p:commandButton id="checkBtn"
+                                     value="Проверить"
+                                     styleClass="pl-main-button"
+                                     action="#{pointController.checkByInput}"
+                                     process="@form"
+                                     update=":form:messages :form:resultsTable :form:coords :form:xDisplay"
+                                     onclick="drawImmediateFromInputs();"
+                                     oncomplete="if (args &amp;&amp; args.last) { setLastPoint(args.last); } redrawPlot();" />
+                    <h:panelGroup id="coords">
+                        <h:outputText value="X: #{pointController.x}  Y: #{pointController.y}  R: #{pointController.r}"
+                                      style="font-weight:600; color:#2c3e50;" />
+                    </h:panelGroup>
+                </h:panelGrid>
+
+                <h:inputHidden id="rValue" value="#{pointController.r}" />
+
+            </h:panelGrid>
+        </p:panel>
+
+        <p:panel header="График" style="margin-top:12px;" styleClass="pl-panel">
+            <canvas id="plot" width="480" height="480"
+                    class="pl-plot-canvas"
+                    onclick="onCanvasClickHandler(event);">
+            </canvas>
+        </p:panel>
+
+        <!-- Ajax при клике -->
+        <p:remoteCommand name="rcClick"
+                         action="#{pointController.onCanvasClick}"
+                         process="@this"
+                         update=":form:messages :form:resultsTable :form:coords :form:xDisplay"
+                         oncomplete="if (args &amp;&amp; args.last) { setLastPoint(args.last); } redrawPlot();">
+            <f:setPropertyActionListener target="#{pointController.clickX}" value="#{param.canvasX}" />
+            <f:setPropertyActionListener target="#{pointController.clickY}" value="#{param.canvasY}" />
+            <f:setPropertyActionListener target="#{pointController.canvasWidth}" value="#{param.canvasW}" />
+            <f:setPropertyActionListener target="#{pointController.canvasHeight}" value="#{param.canvasH}" />
+        </p:remoteCommand>
+
+        <!-- Таблица -->
+        <p:panel header="Результаты" style="margin-top:12px;" styleClass="pl-panel">
+            <p:dataTable id="resultsTable"
+                         value="#{resultsBean.sessionResults}"
+                         var="r"
+                         paginator="true"
+                         rows="10"
+                         style="width:100%;">
+                <p:column headerText="X"><h:outputText value="#{r.x}" /></p:column>
+                <p:column headerText="Y"><h:outputText value="#{r.y}" /></p:column>
+                <p:column headerText="R"><h:outputText value="#{r.r}" /></p:column>
+                <p:column headerText="Hit">
+                    <h:outputText value="#{r.hit ? 'YES' : 'NO'}" />
+                </p:column>
+                <p:column headerText="Time">
+                    <h:outputText value="#{r.createdAt}">
+                        <f:convertDateTime type="localDateTime"
+                                           pattern="dd.MM.yyyy HH:mm:ss" />
+                    </h:outputText>
+                </p:column>
+            </p:dataTable>
+        </p:panel>
+
+    </h:form>
+
+</h:body>
+</html>
